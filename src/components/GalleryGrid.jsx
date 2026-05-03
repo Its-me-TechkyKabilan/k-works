@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Camera, ImagePlus } from 'lucide-react'
 import { useState } from 'react'
+import { AdminCardActions } from './AdminControls.jsx'
 
 export default function GalleryGrid({ items, onSelect }) {
   if (!items.length) {
@@ -35,35 +36,40 @@ function GalleryCard({ item, index, onSelect }) {
   const imageSource = item.image || item.src
 
   return (
-    <motion.button
-      type="button"
-      onClick={() => onSelect(item)}
+    <motion.article
       className="group mb-5 block w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#d4af37]/60 hover:shadow-[#d4af37]/10"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: 'easeOut', delay: Math.min(index * 0.035, 0.24) }}
     >
-      <div className="relative min-h-[18rem] overflow-hidden bg-[#080808]">
-        <img
-          src={imageSource}
-          alt={item.title}
-          className={`w-full object-cover transition duration-700 group-hover:scale-105 ${showImage ? 'opacity-100' : 'opacity-0'}`}
-          loading="lazy"
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageFailed(true)}
-        />
-        {!showImage && <GalleryPlaceholder title={item.title} />}
-        <div className="absolute inset-x-4 top-4 h-px origin-left scale-x-0 bg-[#d4af37] transition duration-500 group-hover:scale-x-100" />
-      </div>
-      <div className="p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-serif text-2xl text-[#f8f1df]">{item.title}</h2>
-          <span className="text-xs uppercase tracking-[0.18em] text-[#d4af37]">{item.category}</span>
+      <div className="relative">
+        <button type="button" onClick={() => onSelect(item)} className="block w-full text-left">
+          <div className="relative min-h-[18rem] overflow-hidden bg-[#080808]">
+            <img
+              src={imageSource}
+              alt={item.title}
+              className={`w-full object-cover transition duration-700 group-hover:scale-105 ${showImage ? 'opacity-100' : 'opacity-0'}`}
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageFailed(true)}
+            />
+            {!showImage && <GalleryPlaceholder title={item.title} />}
+            <div className="absolute inset-x-4 top-4 h-px origin-left scale-x-0 bg-[#d4af37] transition duration-500 group-hover:scale-x-100" />
+          </div>
+          <div className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-serif text-2xl text-[#f8f1df]">{item.title}</h2>
+              <span className="text-xs uppercase tracking-[0.18em] text-[#d4af37]">{item.category}</span>
+            </div>
+            <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#f8f1df]/70">{item.caption}</p>
+          </div>
+        </button>
+        <div className="absolute right-3 top-3">
+          <AdminCardActions />
         </div>
-        <p className="mt-3 line-clamp-2 text-sm leading-6 text-[#f8f1df]/70">{item.caption}</p>
       </div>
-    </motion.button>
+    </motion.article>
   )
 }
 

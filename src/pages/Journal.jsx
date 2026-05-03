@@ -1,28 +1,37 @@
 import { Aperture, Calendar, ImagePlus } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
 import PageTitle from '../components/PageTitle.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { journalEntries } from '../data/journal.js'
 
 export default function Journal() {
   return (
-    <main className="min-h-screen bg-[#030303] text-[#f8f1df]">
+    <main className="relative min-h-screen bg-[#030303] text-[#f8f1df]">
+      <PageBackgroundOverride route="/journal" />
       <PageTitle
         eyebrow="Journal"
         title="Stories behind selected frames."
         description="Short notes for food walks, event nights, city corners, and small memories."
       />
+      <section className="page-shell relative z-10 pb-6">
+        <AdminSectionAction>Add Journal Entry</AdminSectionAction>
+      </section>
 
-      <section className="page-shell grid gap-5 pb-24 lg:grid-cols-2">
+      <section className="page-shell relative z-10 grid gap-5 pb-24 lg:grid-cols-2">
         {journalEntries.map((entry, index) => (
           <motion.article
             key={entry.title}
-            className="grid overflow-hidden rounded-lg border border-white/10 bg-white/5 sm:grid-cols-[0.85fr_1.15fr]"
+            className="relative grid overflow-hidden rounded-lg border border-white/10 bg-white/5 sm:grid-cols-[0.85fr_1.15fr]"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.25) }}
           >
+            <div className="absolute right-3 top-3 z-20">
+              <AdminCardActions />
+            </div>
             <JournalCover entry={entry} />
             <div className="p-6">
               <p className="text-xs uppercase tracking-[0.28em] text-[#d4af37]">{entry.category}</p>

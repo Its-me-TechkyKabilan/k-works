@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion'
 import { Aperture, ImagePlus, Sparkles } from 'lucide-react'
 import { useState } from 'react'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { experiments } from '../data/experiments.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
+
+const route = '/experiments'
+const defaultHeading = 'EXPERIMENTS'
+const defaultSubtitle = 'A creative lab for edits, visual trials, AI ideas, color grading, and cinematic concepts.'
 
 export default function Experiments() {
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
-      <section className="page-shell pb-10 pt-28 sm:pt-32">
+    <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
+      <PageBackgroundOverride route={route} />
+      <section className="page-shell relative z-10 pb-10 pt-28 sm:pt-32">
         <motion.div
           className="max-w-4xl"
           initial={{ opacity: 0, y: 24 }}
@@ -14,23 +26,30 @@ export default function Experiments() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Creative Lab</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            EXPERIMENTS
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[#f8f1df]/70">
-            A creative lab for edits, visual trials, AI ideas, color grading, and cinematic concepts.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#f8f1df]/70" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Experiment</AdminSectionAction>
+          </div>
         </motion.div>
       </section>
 
       {/* Add new experiment cards later by editing src/data/experiments.js. */}
-      <section className="page-shell grid gap-5 pb-14 md:grid-cols-2 xl:grid-cols-4">
+      <section className="page-shell relative z-10 grid gap-5 pb-14 md:grid-cols-2 xl:grid-cols-4">
         {experiments.map((experiment, index) => (
           <ExperimentCard key={experiment.id} experiment={experiment} index={index} />
         ))}
       </section>
 
-      <section className="page-shell pb-24">
+      <section className="page-shell relative z-10 pb-24">
         <motion.div
           className="rounded-2xl border border-[#d4af37]/25 bg-[linear-gradient(135deg,rgba(212,175,55,0.09),rgba(255,255,255,0.045),rgba(8,8,8,0.78))] p-6 text-center shadow-2xl shadow-black/25 backdrop-blur-xl"
           initial={{ opacity: 0, y: 24 }}
@@ -62,6 +81,9 @@ function ExperimentCard({ experiment, index }) {
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.48, delay: Math.min(index * 0.045, 0.28), ease: 'easeOut' }}
     >
+      <div className="absolute right-3 top-3 z-20">
+        <AdminCardActions />
+      </div>
       <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-[#080808]">
         <img
           src={experiment.coverImage}

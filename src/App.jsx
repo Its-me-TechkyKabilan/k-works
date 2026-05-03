@@ -4,9 +4,12 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import FullscreenMenu from './components/FullscreenMenu.jsx'
 import Navbar from './components/Navbar.jsx'
 import Preloader from './components/Preloader.jsx'
+import CreatorModeBar from './components/studio/CreatorModeBar.jsx'
+import useCreatorMode from './hooks/useCreatorMode.js'
 import AboutKabilan from './pages/AboutKabilan.jsx'
 import Collections from './pages/Collections.jsx'
 import Contact from './pages/Contact.jsx'
+import CreatorStudio from './pages/CreatorStudio.jsx'
 import Experiments from './pages/Experiments.jsx'
 import FeaturedWorks from './pages/FeaturedWorks.jsx'
 import GearTools from './pages/GearTools.jsx'
@@ -16,10 +19,15 @@ import Moodboard from './pages/Moodboard.jsx'
 import UploadWork from './pages/UploadWork.jsx'
 import VisualArchive from './pages/VisualArchive.jsx'
 
+const CREATOR_BAR_PUBLIC_PATHS = ['/', '/archive', '/collections', '/featured', '/moodboard', '/gear', '/journal', '/experiments', '/about', '/contact']
+
 export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [showPreloader, setShowPreloader] = useState(true)
   const location = useLocation()
+  const isStudioRoute = location.pathname === '/studio'
+  const creatorModeActive = useCreatorMode()
+  const showCreatorModeBar = creatorModeActive && CREATOR_BAR_PUBLIC_PATHS.includes(location.pathname)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showPreloader, setShowPreloader] = useState(() => !isStudioRoute)
 
   const finishPreloader = useCallback(() => {
     setShowPreloader(false)
@@ -52,10 +60,12 @@ export default function App() {
           <Route path="/experiments" element={<Experiments />} />
           <Route path="/about" element={<AboutKabilan />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/studio" element={<CreatorStudio />} />
         </Routes>
       </motion.div>
 
-      <AnimatePresence>{showPreloader && <Preloader onComplete={finishPreloader} />}</AnimatePresence>
+      <CreatorModeBar active={showCreatorModeBar} />
+      <AnimatePresence>{!isStudioRoute && showPreloader && <Preloader onComplete={finishPreloader} />}</AnimatePresence>
     </div>
   )
 }

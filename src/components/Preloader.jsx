@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { site } from '../data/site.js'
+import { isCreatorMode } from '../utils/creatorMode.js'
 
 // Adjust this total duration to make the full preloader shorter or longer.
 const TOTAL_DURATION_MS = 5800
@@ -18,15 +19,18 @@ const MIDDLE_WORD_WIDTH_EM = 3.95
 
 export default function Preloader({ onComplete }) {
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     const completeTimer = window.setTimeout(() => {
-      navigate('/', { replace: true })
+      if (location.pathname !== '/studio' && !isCreatorMode()) {
+        navigate('/', { replace: true })
+      }
       onComplete()
     }, TOTAL_DURATION_MS)
 
     return () => window.clearTimeout(completeTimer)
-  }, [navigate, onComplete])
+  }, [location.pathname, navigate, onComplete])
 
   return (
     <motion.div

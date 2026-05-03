@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion'
 import { Camera } from 'lucide-react'
 import { useState } from 'react'
+import { AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
 
 // Place your personal photo at public/about/kabilan.jpg to replace this placeholder.
 const ABOUT_PHOTO_SRC = '/about/kabilan.jpg'
@@ -27,10 +31,14 @@ const infoCards = [
 export default function AboutKabilan() {
   const [photoStatus, setPhotoStatus] = useState('loading')
   const showPhoto = photoStatus === 'loaded'
+  const pageSettings = usePageSettings('/about')
+  const hasTextSettings = Boolean(pageSettings.text)
+  const text = getTextSettings(pageSettings.text, 'ABOUT\nKABILAN', aboutParagraphs[0])
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_78%_18%,rgba(212,175,55,0.12),transparent_28%),linear-gradient(135deg,#030303,#111111_52%,#030303)]" />
+      <PageBackgroundOverride route="/about" />
 
       <section className="relative z-10 mx-auto grid min-h-screen w-full max-w-7xl items-center gap-12 px-5 pb-20 pt-28 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10">
         <motion.div
@@ -39,10 +47,26 @@ export default function AboutKabilan() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Creator Profile</p>
-          <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] text-[#f8f1df] sm:text-8xl lg:text-[7.5rem]">
-            ABOUT
-            <span className="block text-[#d4af37]">KABILAN</span>
-          </h1>
+          {hasTextSettings ? (
+            text.showHeading && (
+              <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] text-[#f8f1df] sm:text-8xl lg:text-[7.5rem]" style={text.headingStyle}>
+                {text.headingText}
+              </h1>
+            )
+          ) : (
+            <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] text-[#f8f1df] sm:text-8xl lg:text-[7.5rem]">
+              ABOUT
+              <span className="block text-[#d4af37]">KABILAN</span>
+            </h1>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Edit About Page</AdminSectionAction>
+          </div>
+          {hasTextSettings && text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/80" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
 
           <div className="mt-9 max-w-3xl space-y-5 text-base leading-8 text-[#f8f1df]/80 sm:text-lg">
             {aboutParagraphs.map((paragraph) => (

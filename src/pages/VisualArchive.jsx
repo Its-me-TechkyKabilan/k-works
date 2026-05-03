@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Filter, Search } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
+import { AdminSectionAction } from '../components/AdminControls.jsx'
 import GalleryGrid from '../components/GalleryGrid.jsx'
 import ImageModal from '../components/ImageModal.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { galleryCategories, galleryItems } from '../data/gallery.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
+
+const route = '/archive'
+const defaultHeading = 'VISUAL ARCHIVE'
+const defaultSubtitle = 'A complete archive of captured moments, edits, memories, and visual stories inside K-Works.'
 
 export default function VisualArchive() {
   const [searchParams] = useSearchParams()
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
   const [uploadedItems, setUploadedItems] = useState([])
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('All')
@@ -73,16 +83,24 @@ export default function VisualArchive() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_78%_14%,rgba(212,175,55,0.12),transparent_26%),linear-gradient(135deg,#030303,#111111_52%,#030303)]" />
+      <PageBackgroundOverride route={route} />
 
       <section className="page-shell relative z-10 pb-10 pt-28 sm:pt-32">
         <div className="max-w-5xl">
           <p className="kicker">Master Gallery</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            VISUAL ARCHIVE
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/70">
-            A complete archive of captured moments, edits, memories, and visual stories inside K-Works.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/70" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Photo</AdminSectionAction>
+          </div>
         </div>
       </section>
 

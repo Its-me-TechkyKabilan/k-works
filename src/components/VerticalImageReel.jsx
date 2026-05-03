@@ -9,7 +9,12 @@ const MANUAL_PAUSE_MS = 700
 // Adjust manual wheel/touch sensitivity here.
 const MANUAL_SCROLL_MULTIPLIER = 0.86
 
-export default function VerticalImageReel({ images }) {
+export default function VerticalImageReel({
+  images,
+  travelDurationSeconds = IMAGE_TRAVEL_DURATION_SECONDS,
+  manualPauseMs = MANUAL_PAUSE_MS,
+  direction = 'bottom-to-top',
+}) {
   const trackRef = useRef(null)
   const sequenceRef = useRef(null)
   const sequenceHeightRef = useRef(0)
@@ -37,7 +42,7 @@ export default function VerticalImageReel({ images }) {
 
     const getAutoScrollSpeed = () => {
       const frameHeight = sequence.firstElementChild?.offsetHeight || window.innerHeight
-      return (frameHeight + window.innerHeight) / IMAGE_TRAVEL_DURATION_SECONDS
+      return (frameHeight + window.innerHeight) / Math.max(Number(travelDurationSeconds) || IMAGE_TRAVEL_DURATION_SECONDS, 1)
     }
 
     const measure = () => {
@@ -69,7 +74,11 @@ export default function VerticalImageReel({ images }) {
       window.cancelAnimationFrame(animationFrameRef.current)
       resizeObserver.disconnect()
     }
-  }, [])
+  }, [travelDurationSeconds])
+
+  useEffect(() => {
+    autoDirectionRef.current = direction === 'top-to-bottom' ? -1 : 1
+  }, [direction])
 
   const moveReel = (delta) => {
     const height = sequenceHeightRef.current
@@ -78,7 +87,7 @@ export default function VerticalImageReel({ images }) {
     // Direction logic:
     // positive delta moves the image reel bottom-to-top, negative delta moves it top-to-bottom.
     autoDirectionRef.current = delta >= 0 ? 1 : -1
-    pauseUntilRef.current = performance.now() + MANUAL_PAUSE_MS
+    pauseUntilRef.current = performance.now() + (Number(manualPauseMs) || MANUAL_PAUSE_MS)
     offsetRef.current = ((offsetRef.current + delta * MANUAL_SCROLL_MULTIPLIER) % height + height) % height
 
     if (trackRef.current) {
@@ -126,7 +135,7 @@ const ImageSequence = forwardRef(function ImageSequence({ images, sequenceId }, 
       {images.map((item, index) => (
         <figure key={`${sequenceId}-${item.id}-${index}`} className="home-reel-frame">
           {/* Adjust image sizing in the .home-reel-frame and .home-reel-image CSS classes. */}
-          <img src={item.src} alt="" className="home-reel-image" draggable="false" loading={index < 2 ? 'eager' : 'lazy'} />
+          <img src={item.src || item.image} alt="" className="home-reel-image" draggable="false" loading={index < 2 ? 'eager' : 'lazy'} />
         </figure>
       ))}
     </div>

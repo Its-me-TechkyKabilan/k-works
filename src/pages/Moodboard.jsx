@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion'
 import { Aperture, ImagePlus, Palette } from 'lucide-react'
 import { useState } from 'react'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { colorPalette, editingStyles, visualMoods } from '../data/moodboard.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
+
+const route = '/moodboard'
+const defaultHeading = 'MOODBOARD'
+const defaultSubtitle = 'The visual language of K-Works \u2014 colors, moods, textures, light, and editing styles that shape the archive.'
 
 export default function Moodboard() {
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_80%_14%,rgba(212,175,55,0.12),transparent_26%),linear-gradient(135deg,#030303,#111111_52%,#030303)]" />
+      <PageBackgroundOverride route={route} />
 
       <section className="page-shell relative z-10 pb-12 pt-28 sm:pt-32">
         <motion.div
@@ -16,13 +28,19 @@ export default function Moodboard() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Visual Direction</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            MOODBOARD
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72">
-            The visual language of K-Works {'\u2014'} colors, moods, textures, light, and editing styles that shape the
-            archive.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Mood Item</AdminSectionAction>
+          </div>
         </motion.div>
       </section>
 
@@ -123,12 +141,15 @@ function MoodCard({ mood, index }) {
 
   return (
     <motion.article
-      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#d4af37]/50 hover:shadow-[#d4af37]/10"
+      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-500 hover:-translate-y-1 hover:border-[#d4af37]/50 hover:shadow-[#d4af37]/10"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.48, delay: Math.min(index * 0.045, 0.26), ease: 'easeOut' }}
     >
+      <div className="absolute right-3 top-3 z-20">
+        <AdminCardActions />
+      </div>
       <div className="relative aspect-[4/3] overflow-hidden bg-[#080808]">
         <img
           src={mood.image}

@@ -3,10 +3,22 @@ import { ArrowUpRight } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { menuItems } from '../data/menu.js'
+import useCreatorMode from '../hooks/useCreatorMode.js'
+import { useMenuPreviewSetting } from '../hooks/useStudioSettings.js'
+import MenuPreviewEditor from './studio/MenuPreviewEditor.jsx'
 
 export default function FullscreenMenu({ isOpen, onClose }) {
   const [hovered, setHovered] = useState(menuItems[0])
+  const [editingPreview, setEditingPreview] = useState(false)
   const location = useLocation()
+  const creatorModeActive = useCreatorMode()
+  const hoveredSettings = useMenuPreviewSetting(hovered.route)
+  const previewTitle = hoveredSettings.title || hovered.label
+  const previewDescription = hoveredSettings.description || hovered.description
+  const previewImage = hoveredSettings.imageUrl || hovered.previewImage
+  const showPreviewImage = hoveredSettings.showPreview !== false && hoveredSettings.previewType !== 'text'
+  const previewAlignment = hoveredSettings.alignment || 'left'
+  const overlayOpacity = Math.min(Math.max(Number(hoveredSettings.overlayDarkness ?? 15), 0), 100) / 100
 
   return (
     <AnimatePresence>
@@ -67,21 +79,37 @@ export default function FullscreenMenu({ isOpen, onClose }) {
 
             <section className="relative hidden min-h-screen overflow-hidden lg:block">
               <AnimatePresence mode="wait">
-                <motion.img
-                  key={hovered.route}
-                  src={hovered.previewImage}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover"
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.025 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                />
+                {showPreviewImage && (
+                  <motion.img
+                    key={`${hovered.route}-${previewImage}`}
+                    src={previewImage}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.025 }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                )}
               </AnimatePresence>
-              <div className="absolute inset-0 bg-black/15" />
+              <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity }} />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(212,175,55,0.14),transparent_24%),linear-gradient(90deg,rgba(3,3,3,0.08),rgba(3,3,3,0.02)_42%,rgba(3,3,3,0.18))]" />
 
-              <div className="absolute bottom-12 left-12 max-w-xl">
+              {creatorModeActive && (
+                <button
+                  type="button"
+                  onClick={() => setEditingPreview(true)}
+                  className="absolute right-8 top-8 z-20 rounded-full border border-[#d4af37]/55 bg-black/45 px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#d4af37] backdrop-blur-xl transition hover:bg-[#d4af37] hover:text-black"
+                >
+                  Edit Preview
+                </button>
+              )}
+
+              <div
+                className={`absolute bottom-12 max-w-xl ${
+                  previewAlignment === 'right' ? 'right-12 text-right' : previewAlignment === 'center' ? 'left-1/2 -translate-x-1/2 text-center' : 'left-12'
+                }`}
+              >
                 <motion.div
                   key={hovered.route}
                   className="border-l border-[#d4af37]/70 bg-black/10 py-2 pl-6 pr-4 backdrop-blur-[2px]"
@@ -90,8 +118,8 @@ export default function FullscreenMenu({ isOpen, onClose }) {
                   transition={{ duration: 0.45, ease: 'easeOut' }}
                 >
                   <p className="mb-4 text-xs uppercase tracking-[0.35em] text-[#d4af37]">{hovered.number}</p>
-                  <h2 className="font-serif text-5xl text-white [text-shadow:0_4px_24px_rgba(0,0,0,0.6)]">{hovered.label}</h2>
-                  <p className="mt-5 text-lg leading-8 text-[#f8f1df] [text-shadow:0_3px_20px_rgba(0,0,0,0.72)]">{hovered.description}</p>
+                  <h2 className="font-serif text-5xl text-white [text-shadow:0_4px_24px_rgba(0,0,0,0.6)]">{previewTitle}</h2>
+                  <p className="mt-5 text-lg leading-8 text-[#f8f1df] [text-shadow:0_3px_20px_rgba(0,0,0,0.72)]">{previewDescription}</p>
                 </motion.div>
               </div>
             </section>
@@ -99,8 +127,8 @@ export default function FullscreenMenu({ isOpen, onClose }) {
             <section className="relative min-h-screen overflow-hidden lg:hidden">
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={hovered.route}
-                  src={hovered.previewImage}
+                  key={`${hovered.route}-${previewImage}`}
+                  src={previewImage}
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover opacity-75"
                   initial={{ opacity: 0, scale: 1.05 }}
@@ -109,7 +137,7 @@ export default function FullscreenMenu({ isOpen, onClose }) {
                   transition={{ duration: 0.6, ease: 'easeOut' }}
                 />
               </AnimatePresence>
-              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute inset-0 bg-black" style={{ opacity: Math.max(overlayOpacity, 0.2) }} />
               <motion.div
                 key={hovered.route}
                 className="absolute inset-x-6 bottom-8 border-l border-[#d4af37]/70 pl-5"
@@ -118,11 +146,12 @@ export default function FullscreenMenu({ isOpen, onClose }) {
                 transition={{ duration: 0.42, ease: 'easeOut' }}
               >
                 <p className="mb-3 text-xs uppercase tracking-[0.35em] text-[#d4af37]">{hovered.number}</p>
-                <h2 className="font-serif text-4xl text-white">{hovered.label}</h2>
-                <p className="mt-3 text-base leading-7 text-[#f8f1df]">{hovered.description}</p>
+                <h2 className="font-serif text-4xl text-white">{previewTitle}</h2>
+                <p className="mt-3 text-base leading-7 text-[#f8f1df]">{previewDescription}</p>
               </motion.div>
             </section>
           </div>
+          <MenuPreviewEditor key={`fullscreen-${hovered.route}-${editingPreview}`} open={editingPreview} menuItem={hovered} onClose={() => setEditingPreview(false)} />
         </motion.aside>
       )}
     </AnimatePresence>

@@ -1,14 +1,25 @@
 import { motion } from 'framer-motion'
 import { Aperture, Images } from 'lucide-react'
 import { useState } from 'react'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { featuredWorks } from '../data/featured.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
+
+const route = '/featured'
+const defaultHeading = 'FEATURED WORKS'
+const defaultSubtitle = 'A curated selection of signature frames, visual stories, edits, and moments from K-Works.'
 
 export default function FeaturedWorks() {
   const [hero, ...rest] = featuredWorks
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_78%_14%,rgba(212,175,55,0.12),transparent_26%),linear-gradient(135deg,#030303,#111111_52%,#030303)]" />
+      <PageBackgroundOverride route={route} />
 
       <section className="page-shell relative z-10 pb-10 pt-28 sm:pt-32">
         <motion.div
@@ -18,23 +29,33 @@ export default function FeaturedWorks() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Premium Showcase</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            FEATURED WORKS
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72">
-            A curated selection of signature frames, visual stories, edits, and moments from K-Works.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Featured Work</AdminSectionAction>
+          </div>
         </motion.div>
       </section>
 
       {hero && (
         <section className="page-shell relative z-10 pb-24">
           <motion.article
-            className="overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur-xl"
+            className="relative overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-white/5 shadow-2xl shadow-black/30 backdrop-blur-xl"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, ease: 'easeOut', delay: 0.08 }}
           >
+            <div className="absolute right-4 top-4 z-20">
+              <AdminCardActions />
+            </div>
             <div className="grid lg:grid-cols-[1.3fr_0.7fr]">
               <FeaturedImage item={hero} large />
               <FeaturedText item={hero} index={0} hero />
@@ -47,12 +68,15 @@ export default function FeaturedWorks() {
         {rest.map((item, index) => (
           <motion.article
             key={item.id}
-            className={`grid items-center gap-8 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:[&>div:first-child]:order-2' : ''}`}
+            className={`relative grid items-center gap-8 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:[&>div:first-child]:order-2' : ''}`}
             initial={{ opacity: 0, y: 36 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-120px' }}
             transition={{ duration: 0.68, ease: 'easeOut' }}
           >
+            <div className="absolute right-3 top-3 z-20">
+              <AdminCardActions />
+            </div>
             <FeaturedImage item={item} />
             <FeaturedText item={item} index={index + 1} />
           </motion.article>

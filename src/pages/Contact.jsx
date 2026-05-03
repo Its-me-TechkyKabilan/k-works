@@ -1,6 +1,9 @@
 import { ChevronDown, Link as LinkIcon, Mail, MessageSquare, Send, Trash2, User } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { AdminSectionAction } from '../components/AdminControls.jsx'
 import { galleryItems } from '../data/gallery.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
 
 const initialForm = {
   name: '',
@@ -24,8 +27,12 @@ export default function Contact() {
   const [savedMessages, setSavedMessages] = useState([])
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
+  const pageSettings = usePageSettings('/contact')
+  const background = pageSettings.background
+  const hasTextSettings = Boolean(pageSettings.text)
+  const text = getTextSettings(pageSettings.text, 'START A\nVISUAL\nSTORY', 'For collaborations, event coverage, creative edits, or visual ideas, leave a message for K-Works.')
 
-  const backgroundImage = galleryItems[10]?.src || galleryItems[0]?.src
+  const backgroundImage = background?.showImage && background.imageUrl ? background.imageUrl : galleryItems[10]?.src || galleryItems[0]?.src
 
   useEffect(() => {
     try {
@@ -78,21 +85,44 @@ export default function Contact() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
-      <img src={backgroundImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-black/40" />
+      <img
+        src={backgroundImage}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{
+          objectPosition: background?.position || undefined,
+          objectFit: background?.size || 'cover',
+          filter: background?.blur ? `blur(${background.blur}px)` : undefined,
+          transform: background?.blur ? 'scale(1.04)' : undefined,
+        }}
+      />
+      <div className="absolute inset-0 bg-black" style={{ opacity: background?.imageUrl ? (Number(background.overlayDarkness) || 40) / 100 : 0.4 }} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_24%,rgba(212,175,55,0.16),transparent_24%),linear-gradient(90deg,rgba(3,3,3,0.58),rgba(3,3,3,0.22)_48%,rgba(3,3,3,0.5))]" />
 
       <section className="relative z-10 grid min-h-screen items-center gap-10 px-5 pb-10 pt-28 sm:px-8 lg:grid-cols-[0.9fr_1fr] lg:px-12">
         <div className="max-w-3xl">
           <p className="kicker">Contact</p>
-          <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] tracking-normal text-[#f8f1df] [text-shadow:0_6px_28px_rgba(0,0,0,0.82)] sm:text-8xl lg:text-[7.8rem]">
-            START A
-            <span className="block text-[#d4af37]">VISUAL</span>
-            <span className="block">STORY</span>
-          </h1>
-          <p className="mt-7 max-w-xl font-serif text-xl leading-8 text-[#f8f1df]/90 [text-shadow:0_4px_22px_rgba(0,0,0,0.8)]">
-            For collaborations, event coverage, creative edits, or visual ideas, leave a message for K-Works.
-          </p>
+          {hasTextSettings ? (
+            text.showHeading && (
+              <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] tracking-normal text-[#f8f1df] [text-shadow:0_6px_28px_rgba(0,0,0,0.82)] sm:text-8xl lg:text-[7.8rem]" style={text.headingStyle}>
+                {text.headingText}
+              </h1>
+            )
+          ) : (
+            <h1 className="mt-5 font-serif text-6xl font-semibold uppercase leading-[0.88] tracking-normal text-[#f8f1df] [text-shadow:0_6px_28px_rgba(0,0,0,0.82)] sm:text-8xl lg:text-[7.8rem]">
+              START A
+              <span className="block text-[#d4af37]">VISUAL</span>
+              <span className="block">STORY</span>
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-7 max-w-xl font-serif text-xl leading-8 text-[#f8f1df]/90 [text-shadow:0_4px_22px_rgba(0,0,0,0.8)]" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>View Messages / Manage Messages</AdminSectionAction>
+          </div>
         </div>
 
         <div className="mx-auto w-full max-w-2xl rounded-2xl border border-[#d4af37]/40 bg-black/40 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-8">

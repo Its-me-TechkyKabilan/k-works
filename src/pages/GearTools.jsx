@@ -14,9 +14,17 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { tools } from '../data/tools.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
 
 const categoryOrder = ['Capture', 'Edit', 'Technical']
+const route = '/gear'
+const defaultHeading = 'GEAR & TOOLS'
+const defaultSubtitle =
+  'The creative and technical setup behind K-Works \u2014 from cameras and mobile photography to editing, AI, and web-based visual systems.'
 
 const iconMap = {
   BrainCircuit,
@@ -34,9 +42,13 @@ const iconMap = {
 }
 
 export default function GearTools() {
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_78%_16%,rgba(212,175,55,0.12),transparent_26%),linear-gradient(135deg,#030303,#101010_52%,#030303)]" />
+      <PageBackgroundOverride route={route} />
 
       <section className="page-shell relative z-10 pb-12 pt-28 sm:pt-32">
         <motion.div
@@ -46,13 +58,19 @@ export default function GearTools() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Creative Setup</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            GEAR &amp; TOOLS
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72">
-            The creative and technical setup behind K-Works {'\u2014'} from cameras and mobile photography to editing, AI,
-            and web-based visual systems.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/72" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Tool</AdminSectionAction>
+          </div>
         </motion.div>
       </section>
 
@@ -121,6 +139,9 @@ function ToolCard({ tool, index }) {
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.48, delay: Math.min(index * 0.045, 0.22), ease: 'easeOut' }}
     >
+      <div className="absolute right-3 top-3 z-20">
+        <AdminCardActions />
+      </div>
       <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-[#080808]">
         <img
           src={tool.image}

@@ -2,12 +2,24 @@ import { motion } from 'framer-motion'
 import { Camera, Images } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { AdminCardActions, AdminSectionAction } from '../components/AdminControls.jsx'
+import PageBackgroundOverride from '../components/studio/PageBackgroundOverride.jsx'
 import { collections } from '../data/collections.js'
+import { usePageSettings } from '../hooks/useStudioSettings.js'
+import { getTextSettings } from '../utils/pageTextStyles.js'
+
+const route = '/collections'
+const defaultHeading = 'COLLECTIONS'
+const defaultSubtitle = 'Visual sets organized by mood, place, people, and moments.'
 
 export default function Collections() {
+  const pageSettings = usePageSettings(route)
+  const text = getTextSettings(pageSettings.text, defaultHeading, defaultSubtitle)
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#030303] text-[#f8f1df]">
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_78%_16%,rgba(212,175,55,0.12),transparent_26%),linear-gradient(135deg,#030303,#101010_52%,#030303)]" />
+      <PageBackgroundOverride route={route} />
 
       <section className="page-shell relative z-10 pb-12 pt-28 sm:pt-32">
         <motion.div
@@ -17,12 +29,19 @@ export default function Collections() {
           transition={{ duration: 0.65, ease: 'easeOut' }}
         >
           <p className="kicker">Visual Sets</p>
-          <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]">
-            COLLECTIONS
-          </h1>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/70">
-            Visual sets organized by mood, place, people, and moments.
-          </p>
+          {text.showHeading && (
+            <h1 className="mt-5 font-serif text-6xl uppercase leading-none text-[#f8f1df] sm:text-8xl lg:text-[8.5rem]" style={text.headingStyle}>
+              {text.headingText}
+            </h1>
+          )}
+          {text.showSubtitle && (
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#f8f1df]/70" style={text.subtitleStyle}>
+              {text.subtitleText}
+            </p>
+          )}
+          <div className="mt-6">
+            <AdminSectionAction>Add Collection</AdminSectionAction>
+          </div>
         </motion.div>
       </section>
 
@@ -63,6 +82,9 @@ function CollectionCard({ collection, index }) {
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.55, delay: Math.min(index * 0.045, 0.28), ease: 'easeOut' }}
     >
+      <div className="absolute right-4 top-4 z-20">
+        <AdminCardActions />
+      </div>
       <Link to={archiveLink} className="block h-full min-h-[28rem]" aria-label={`Open ${collection.title} collection`}>
         <img
           src={collection.coverImage}
